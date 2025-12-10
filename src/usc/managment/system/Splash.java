@@ -6,8 +6,8 @@ import java.awt.*;
 public class Splash extends JFrame implements Runnable {
     
     Thread t;
-    Splash () {
-        
+    
+    Splash() {
         ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("icons/first.jpg"));
         Image i2 = i1.getImage().getScaledInstance(1000, 700, Image.SCALE_DEFAULT);
         ImageIcon i3 = new ImageIcon(i2);
@@ -19,6 +19,12 @@ public class Splash extends JFrame implements Runnable {
         
         setVisible(true);
         
+        // Run animation
+        animateWindow();
+    }
+    
+    // OOP: Separated animation logic from constructor
+    private void animateWindow() {
         int x = 1;
         for (int i = 2; i <= 600; i+=4, x+=1) {
             setLocation(600 - ((i + x)/2), 350 - (i/2));
@@ -27,29 +33,24 @@ public class Splash extends JFrame implements Runnable {
             try {
                 Thread.sleep(10);
             } catch (Exception e) {
-                
+                e.printStackTrace();
             }
         }
     }
     
     public void run() {
-        // Buttons Fix
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        try {
-            Thread.sleep(3000);
+            
+            // Wait 7 seconds before showing login
+            Thread.sleep(7000);
             setVisible(false);
             
             new Login();
             
         } catch (Exception e) {
-            
+            e.printStackTrace();
         }
-        
     }
     
     public static void main(String[] args) {

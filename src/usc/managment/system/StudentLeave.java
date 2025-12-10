@@ -8,15 +8,14 @@ import java.awt.event.*;
 
 public class StudentLeave extends JFrame implements ActionListener {
     
-    Choice cidno, ctime;
-    JDateChooser dcdate;
-    JButton submit, cancel;
+    private Choice cIdNo, cTime;
+    private JDateChooser dcDate;
+    private JButton submit, cancel;
     
     StudentLeave() {
         setSize(500, 550);
         setLocation(550, 100);
         setLayout(null);
-        
         getContentPane().setBackground(Color.WHITE);
         
         JLabel heading = new JLabel("Apply Leave (Student)");
@@ -24,45 +23,40 @@ public class StudentLeave extends JFrame implements ActionListener {
         heading.setFont(new Font("Tahoma", Font.BOLD, 20));
         add(heading);
         
-        JLabel lblidno = new JLabel("Search by ID Number");
-        lblidno.setBounds(60, 100, 200, 20);
-        lblidno.setFont(new Font("Tahoma", Font.PLAIN, 18));
-        add(lblidno);
+        // Search ID
+        JLabel lblId = new JLabel("Search by ID Number");
+        lblId.setBounds(60, 100, 200, 20);
+        lblId.setFont(new Font("Tahoma", Font.PLAIN, 18));
+        add(lblId);
         
-        cidno = new Choice();
-        cidno.setBounds(60, 130, 200, 20);
-        add(cidno);
+        cIdNo = new Choice();
+        cIdNo.setBounds(60, 130, 200, 20);
+        add(cIdNo);
+        loadStudentIds(); // OOP: Helper method
         
-        try {
-            Conn c = new Conn();
-            ResultSet rs = c.s.executeQuery("select * from student");
-            while(rs.next()) {
-                cidno.add(rs.getString("idno"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Date
+        JLabel lblDate = new JLabel("Date");
+        lblDate.setBounds(60, 180, 200, 20);
+        lblDate.setFont(new Font("Tahoma", Font.PLAIN, 18));
+        add(lblDate);
         
-        JLabel lbldate = new JLabel("Date");
-        lbldate.setBounds(60, 180, 200, 20);
-        lbldate.setFont(new Font("Tahoma", Font.PLAIN, 18));
-        add(lbldate);
+        dcDate = new JDateChooser();
+        dcDate.setBounds(60, 210, 200, 25);
+        add(dcDate);
         
-        dcdate = new JDateChooser();
-        dcdate.setBounds(60, 210, 200, 25);
-        add(dcdate);
+        // Time
+        JLabel lblTime = new JLabel("Time Duration");
+        lblTime.setBounds(60, 260, 200, 20);
+        lblTime.setFont(new Font("Tahoma", Font.PLAIN, 18));
+        add(lblTime);
         
-        JLabel lbltime = new JLabel("Time Duration");
-        lbltime.setBounds(60, 260, 200, 20);
-        lbltime.setFont(new Font("Tahoma", Font.PLAIN, 18));
-        add(lbltime);
+        cTime = new Choice();
+        cTime.setBounds(60, 290, 200, 20);
+        cTime.add("Full Day");
+        cTime.add("Half Day");
+        add(cTime);
         
-        ctime = new Choice();
-        ctime.setBounds(60, 290, 200, 20);
-        ctime.add("Full Day");
-        ctime.add("Half Day");
-        add(ctime);
-        
+        // Buttons
         submit = new JButton("Submit");
         submit.setBounds(60, 350, 100, 25);
         submit.setBackground(Color.BLACK);
@@ -82,35 +76,49 @@ public class StudentLeave extends JFrame implements ActionListener {
         setVisible(true);
     }
     
+    private void loadStudentIds() {
+        try {
+            Conn c = new Conn();
+            ResultSet rs = c.s.executeQuery("select * from student");
+            while(rs.next()) {
+                cIdNo.add(rs.getString("idno"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void applyLeave() {
+        String idno = cIdNo.getSelectedItem();
+        String date = ((JTextField) dcDate.getDateEditor().getUiComponent()).getText();
+        String duration = cTime.getSelectedItem();
+        
+        String query = "insert into studentleave values('"+idno+"', '"+date+"', '"+duration+"')";
+        
+        try {
+            Conn c = new Conn();
+            c.s.executeUpdate(query);
+            JOptionPane.showMessageDialog(null, "Leave Confirmed");
+            setVisible(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == submit) {
-            String idno = cidno.getSelectedItem();
-            String date = ((JTextField) dcdate.getDateEditor().getUiComponent()).getText();
-            String duration = ctime.getSelectedItem();
-            
-            String query = "insert into studentleave values('"+idno+"', '"+date+"', '"+duration+"')";
-            
-            try {
-                Conn c = new Conn();
-                c.s.executeUpdate(query);
-                JOptionPane.showMessageDialog(null, "Leave Confirmed");
-                setVisible(false);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            applyLeave();
         } else {
             setVisible(false);
         }
     }
     
     public static void main(String[] args) {
-        // Buttons Fix
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
         new StudentLeave();
     }
 }
